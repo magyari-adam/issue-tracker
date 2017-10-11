@@ -26,7 +26,4 @@ public class IssueMessage extends BaseEntity {
     @Column(nullable = false)
     private String message;
 
-    @JoinColumn
-    @ManyToOne(targetEntity = Issue.class)
-    private Issue issue;
 }
