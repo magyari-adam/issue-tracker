@@ -74,25 +74,25 @@ Az annotációknagyon hasonlítanak az interface-ekre: publikus metódusokat tud
 @Data
 public class UserService {
     @Autowired
-    private UserRepoitory userRepoitory;
+    private UserRepository userRepository;
 
     private User user;
 
     public User login(User user) throws UserNotValidException {
         if (isValid(user)) {
-            return this.user = userRepoitory.findByUsername(user.getUsername()).get();
+            return this.user = userRepository.findByUsername(user.getUsername()).get();
         }
         throw new UserNotValidException();
     }
 
     public User register(User user) {
         user.setRole(USER);
-        this.user = userRepoitory.save(user);
+        this.user = userRepository.save(user);
         return user;
     }
 
     public boolean isValid(User user) {
-        return userRepoitory.findByUsernameAndPassword(user.getUsername(), user.getPassword()).isPresent();
+        return userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword()).isPresent();
     }
 
     public boolean isLoggedIn() {

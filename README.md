@@ -120,7 +120,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Role role;
 
-    private enum Role {
+    public enum Role {
         GUEST, USER, ADMIN
     }
 }
@@ -129,12 +129,12 @@ Az @Entity annotációval mondjuk meg, hogy ez az osztály egy entitás lesz. Az
 A @Column annotáció használata nem kötelező, a JPA minden entitás beli oszlopot elment (kivéve ha használjuk a @Transient annotációt), viszont segítségével tudjuk az unique és a null constrainteket érvényesíteni a mezőn.
 Az @Enumerated annotációval jelezzük, hogy az ENUM típúsú mezőket milyen módon szeretnénk persistálni. Itt Stringként, érték szerint fogjuk ezt tenni.
 
-Ha most elindítjuk az alkalmazást `mvn spring-boot:run` és megnyitjuk a `localhost:8080/h2` -t akkor látjuk a H2 conosle ban, hogy sikeresen létrehozta az entitás leírása alapján a Spring Boot a JPA segítségével a táblánkat.
+Ha most elindítjuk az alkalmazást `mvn spring-boot:run` és megnyitjuk a `localhost:8080/h2` -t akkor látjuk a H2 conosle ban, hogy sikeresen létrehozta az entitás leírása alapján a Spring Boot a JPA segítségével a táblánkat. (jdbc url: jdbc:h2:mem:testdb)
 
 Mivel a H2 adatbázis a memóriába ment, ezért minden alkalommal, mikor leállítjuk törlődnek az adataink. Ahhoz hogy legyenek adataink az induláskor az adatbázisban a Spring Boot segítségét vesszük.
 a src/main/resources mappában elkészítjük a data.sql-t(adatok insertálása).Ezt futtatja majd a Spring Boot, amikor az alakalmazásunkat indítjuk.
 
-Készítsünk egy új felhasználót a /src/main/schema.sql fájlban: `INSERT INTO USERS (ID, VERSION, USERNAME, EMAIL, PASSWORD, ROLE) VALUES (0, 0, 'admin', 'admin@gmail.com', 'admin', 'ADMIN');`. Ez létrehoz egy felhasználót ID:0, Version: 0, username:'admin', email:'admin@gmail.com' password: 'admin', role: 'ADMIN'.
+Készítsünk egy új felhasználót a /src/main/resources/data.sql fájlban: `INSERT INTO USERS (ID, VERSION, USERNAME, EMAIL, PASSWORD, ROLE) VALUES (0, 0, 'admin', 'admin@gmail.com', 'admin', 'ADMIN');`. Ez létrehoz egy felhasználót ID:0, Version: 0, username:'admin', email:'admin@gmail.com' password: 'admin', role: 'ADMIN'.
 Később titkosítjuk majd a jelszót.
 
 A `select SQL from information_schema.tables where table_name = 'USERS';` parancs kiadásával a H2 konzolban az eredmány az az sql parancs, amit a JPA kiadott a tábla létrehozásához.
@@ -234,21 +234,21 @@ Készítsük el a UserService-t a service package-ben:
 package hu.elte.alkfejl.issuetracker.service;
 
 import hu.elte.alkfejl.issuetracker.model.User;
-import hu.elte.alkfejl.issuetracker.repository.UserRepoitory;
+import hu.elte.alkfejl.issuetracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     @Autowired
-    private UserRepoitory userRepoitory;
+    private UserRepository userRepository;
 
     public void register(User user) {
-        userRepoitory.save(user);
+        userRepository.save(user);
     }
 
     public boolean isValid(User user) {
-        return userRepoitory.findByUsernameAndPassword(user.getUsername(), user.getPassword()).isPresent();
+        return userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword()).isPresent();
     }
 }
 
@@ -287,7 +287,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepoitory extends CrudRepository<User, String> {
+public interface UserRepository extends CrudRepository<User, String> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
